@@ -1,157 +1,106 @@
-## 간단한 투두리스트 웹앱 기술 명세서 (Beginner Friendly)
+## 심플 카운터 게임 – 기술 명세서 (입문자용)
 
-이 문서는 HTML/CSS/JS만으로 만든 단일 파일 투두리스트(`index.html`)의 구조와 동작 방식을 바이브코딩 입문자도 이해하기 쉽게 설명합니다.
-
----
-
-### 1) 프로젝트 개요
-- **목표**: 입력창에 할 일을 적고 "추가" 버튼(또는 Enter)으로 리스트에 항목을 추가하는 간단한 앱
-- **기능**:
-  - 항목 추가
-  - 체크박스로 완료 표시(완료 시 텍스트에 취소선)
-  - 항목 삭제
-  - 모바일 친화적(가운데 정렬, 터치에 적합한 크기)
+이 문서는 HTML, CSS, JS만으로 구성된 단일 파일 게임(`index.html`)의 구조와 동작을 쉽고 간단하게 설명합니다. 바이브코딩 입문자가 직접 열어보고 수정하며 학습하기에 적합하도록 작성되었습니다.
 
 ---
 
-### 2) 파일 구조
-- `index.html`: HTML, CSS, JavaScript가 한 파일에 모두 포함된 실행 파일
+### 1) 무엇을 만들었나요?
+- **현재 점수 표시**: 화면 중앙에 큰 숫자로 현재 점수를 보여줍니다.
+- **최고 점수 표시**: 화면 상단에 사용자가 달성한 최고 점수를 보여줍니다.
+- **점수 조작 버튼**: `+` 버튼으로 증가, `-` 버튼으로 감소시킬 수 있습니다.
+- **기록 저장**: 최고 점수는 브라우저의 `localStorage`에 저장되어 새로고침해도 유지됩니다.
+- **마우스/키보드 조작**: 버튼 클릭은 물론, 키보드 `↑/↓`, `+/-`, `Space`로도 조작할 수 있습니다.
+- **심플한 디자인**: 중앙 정렬 레이아웃, 버튼 hover 효과 적용.
 
 ---
 
-### 3) 실행 방법
-1. 폴더에서 `index.html`을 더블 클릭하여 브라우저로 열기
-2. 또는 브라우저 창에 `index.html` 파일을 드래그 앤 드롭
-
-추가 설치가 전혀 필요 없습니다.
-
----
-
-### 4) 화면 구성(HTML)
-- 상단 입력 폼: `#todo-form`
-  - 텍스트 입력: `#todo-input`
-  - 추가 버튼: `#add-btn`
-- 리스트 영역: `#todo-list`
-
-예시 (일부):
-```html
-<form id="todo-form" class="input-row" autocomplete="off">
-  <input id="todo-input" class="input" type="text" placeholder="할 일을 입력..." />
-  <button id="add-btn" class="btn" type="submit">추가</button>
-  
-</form>
-<ul id="todo-list" class="list"></ul>
-```
+### 2) 어떻게 실행하나요?
+- 이 프로젝트는 단일 파일입니다: `index.html`
+- 실행 방법:
+  1. 파일 탐색기에서 `index.html`을 더블 클릭하거나,
+  2. 웹 브라우저(Chrome, Edge, Firefox 등)로 `index.html`을 열면 바로 실행됩니다.
+- 별도의 설치나 서버 실행이 필요 없습니다.
 
 ---
 
-### 5) 스타일 가이드(CSS)
-- 모바일에서도 보기 좋게 전체를 **가운데 정렬**
-- 카드 형태 컨테이너와 부드러운 그림자
-- 버튼은 심플한 **파란색(Primary)** 톤, 누름 효과 포함
-- 완료된 항목에는 `.text.completed` 클래스 → **취소선 + 흐린 색**
-
-핵심 클래스:
-- `.container`, `.card`: 레이아웃
-- `.input-row`, `.input`, `.btn`: 입력/버튼
-- `.list`, `.item`: 리스트/항목
-- `.text.completed`: 완료 표시 스타일
+### 3) 폴더/파일 구성
+- `index.html` 하나만 있습니다. 내부에 **HTML + CSS + JS**가 모두 포함되어 있습니다.
 
 ---
 
-### 6) 동작 원리(JavaScript)
-모든 스크립트는 `index.html` 하단 `<script>`에 포함되어 있습니다.
+### 4) 코드가 어떻게 동작하나요?
 
-- 폼 제출 이벤트로 항목 추가
-- 각 항목은 체크박스(완료 토글)와 삭제 버튼을 가짐
+#### 4-1. 핵심 요소들
+- `현재 점수(score)`와 `최고 점수(highScore)`라는 두 개의 상태값을 관리합니다.
+- DOM 요소:
+  - `#score`: 현재 점수 숫자를 표시
+  - `#highscore`: 최고 점수 텍스트 표시(예: "최고 점수: 7")
+  - `#increment`: `+` 버튼
+  - `#decrement`: `-` 버튼
 
-핵심 흐름(요약 코드):
-```js
-const form = document.getElementById('todo-form');
-const input = document.getElementById('todo-input');
-const list = document.getElementById('todo-list');
+#### 4-2. 저장(영속성) – localStorage
+- 키 이름: `counterGameHighScore`
+- 동작 흐름:
+  1. 페이지 로드 시 `localStorage`에서 값 읽기 → 없으면 0으로 간주
+  2. 사용 중 점수가 최고 점수를 넘으면 `localStorage`에 저장
+  3. 새로고침해도 최고 점수는 유지
 
-function createItem(text) {
-  const li = document.createElement('li');
-  li.className = 'item';
-  const checkbox = document.createElement('input');
-  checkbox.type = 'checkbox';
-  checkbox.className = 'checkbox';
-  const span = document.createElement('span');
-  span.className = 'text';
-  span.textContent = text;
-  const delBtn = document.createElement('button');
-  delBtn.className = 'delete-btn';
+#### 4-3. 주요 함수 개요
+- `loadHighScore()`: 저장된 최고 점수를 읽어 옵니다.
+- `saveHighScore()`: 최고 점수를 저장합니다.
+- `render()`: 화면에 점수와 최고 점수를 반영합니다.
+- `maybeUpdateHighScore()`: 현재 점수가 최고 점수보다 크면 갱신/저장합니다.
+- `increment() / decrement()`: 점수를 1씩 증가/감소시키고 필요 시 렌더링합니다.
 
-  checkbox.addEventListener('change', () => {
-    span.classList.toggle('completed', checkbox.checked);
-  });
-  delBtn.addEventListener('click', () => li.remove());
-
-  li.append(checkbox, span, delBtn);
-  return li;
-}
-
-function addTodo(text) {
-  const trimmed = text.trim();
-  if (!trimmed) return;
-  list.appendChild(createItem(trimmed));
-}
-
-form.addEventListener('submit', (e) => {
-  e.preventDefault();
-  addTodo(input.value);
-  input.value = '';
-  input.focus();
-});
-```
-
-포인트:
-- `form`의 기본 제출을 막고(`e.preventDefault()`), 입력값을 읽어 항목 생성
-- 체크박스 `change` 이벤트로 완료 상태를 토글 → 스타일 클래스 변경
-- 삭제 버튼 클릭 시 해당 항목을 DOM에서 제거
+#### 4-4. 이벤트 처리
+- 버튼 클릭: `+` → `increment()`, `-` → `decrement()`
+- 키보드:
+  - 증가: `ArrowUp`, `+`, `=`, `Space`
+  - 감소: `ArrowDown`, `-`, `_`
 
 ---
 
-### 7) 접근성/사용성 처리
-- 스크린 리더용 레이블(`aria-label`, `sr-only` 클래스) 적용
-- 키보드 사용자를 위해 Enter로 즉시 추가 가능
-- 체크박스는 기본 OS 접근성 지원을 활용
+### 5) 스타일(디자인) 개요
+- 배경: 어두운 톤의 그라디언트 배경으로 콘텐츠가 더 눈에 띄게 구성
+- 컨테이너(`.game`): 카드형 패널, 라운드 모서리, 약간의 그림자
+- 숫자 표기(`.score`): 큰 글씨, 중앙 정렬
+- 버튼(`.btn`): 둥근 모서리, hover 시 색/그림자/살짝 떠오르는 효과
+- 접근성: 애니메이션을 최소화하는 환경(`prefers-reduced-motion`)을 고려해 전환 효과 축소
 
 ---
 
-### 8) 커스터마이징 가이드
-- 기본 색상 변경: CSS `:root`의 색상 변수(`--primary`, `--bg` 등) 수정
-- 초기 예시 항목 제거: 스크립트의 `samples` 배열을 삭제하거나 주석 처리
-- 항목 구조 수정: `createItem()` 함수에서 요소 구성 변경
-
-예: 초기 예시 제거
-```js
-// const samples = ['예: 운동하기', '예: 우유 사기', '예: 공부 30분'];
-// for (const s of samples) addTodo(s);
-```
+### 6) 접근성(Accessibility) 고려 사항
+- `aria-live`를 사용해 점수 변화가 보조 기술에 전달될 수 있도록 함
+- 버튼에 `aria-label`을 부여해 의미를 명확히 전달
+- 키보드 조작 지원으로 마우스 없이도 플레이 가능
 
 ---
 
-### 9) 자주 묻는 질문(FAQ)
-- Q. 새로고침하면 리스트가 사라져요.
-  - A. 현재는 브라우저 저장소를 사용하지 않습니다. 간단함을 위해 메모리에만 보관합니다. 원한다면 `localStorage`를 이용해 저장 기능을 쉽게 추가할 수 있습니다.
-- Q. 입력이 비어 있을 때 추가를 누르면?
-  - A. `trim()` 후 빈 문자열이면 무시하도록 처리했습니다.
+### 7) 확장 아이디어(선택)
+- 리셋 버튼 추가: 점수/최고 점수 초기화 기능
+- 점수 증감 폭 설정: 한 번에 ±1 대신 ±N으로 조절
+- 사운드 효과: 점수 변경 시 소리 추가(사용자 설정으로 on/off)
+- 애니메이션: 점수 상승 시 작게 점프하는 모션 등
+- 모바일 최적화: 터치 영역 확대, 진동 피드백 등
 
 ---
 
-### 10) 다음 단계(확장 아이디어)
-- `localStorage`에 리스트 저장/불러오기
-- 항목 편집 기능(더블 클릭 → 내용 수정)
-- 필터(전체/미완료/완료)
-- 드래그 앤 드롭 정렬
+### 8) 자주 하는 질문(FAQ)
+- Q. 새로고침해도 최고 점수가 남는 이유는?
+  - A. 브라우저의 `localStorage`에 숫자를 저장해두기 때문입니다.
+- Q. 다른 브라우저/컴퓨터에서 최고 점수를 공유할 수 있나요?
+  - A. `localStorage`는 현재 브라우저/기기/도메인에만 저장됩니다. 클라우드 동기화가 필요하면 서버나 동기화 기능이 필요한 별도 구현이 필요합니다.
+- Q. 점수가 음수가 되어도 되나요?
+  - A. 현재 구현은 음수 허용입니다. 필요하다면 `decrement()`에서 0보다 작아지지 않도록 조건을 넣어 막을 수 있습니다.
 
 ---
 
-### 11) 요약
-- 단일 `index.html`로 실행되는 가벼운 투두 앱
-- 추가/완료/삭제의 기본 기능과 모바일 친화적 UI 제공
-- 초보자도 구조를 쉽게 이해하고 원하는 부분만 수정 가능
+### 9) 빠르게 코드를 바꾸고 싶다면
+- `index.html`을 코드 에디터로 열어 아래 부분을 찾아 수정하세요:
+  - 색상/스타일: `<style> ... </style>` 내부 변수(`--accent`, `--danger` 등)
+  - 버튼 동작: `<script>` 내부 `increment()`, `decrement()`
+  - 저장 키 이름: `STORAGE_KEY = "counterGameHighScore"`
+
+행운을 빌어요! 직접 바꿔보며 감각을 익혀보는 것이 가장 빠른 성장법입니다.
 
 
