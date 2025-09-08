@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>간단한 투두리스트</title>
+    <style>
+      :root {
+        --bg: #f7f8fa;
+        --card: #ffffff;
+        --text: #1f2937;
+        --muted: #6b7280;
+        --primary: #2563eb;
+        --primary-press: #1d4ed8;
+        --border: #e5e7eb;
+        --success: #10b981;
+        --danger: #ef4444;
+      }
+
+      html, body {
+        height: 100%;
+      }
+
+      body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+          Ubuntu, Cantarell, "Helvetica Neue", Arial, "Apple Color Emoji",
+          "Segoe UI Emoji", "Segoe UI Symbol";
+        background: linear-gradient(180deg, var(--bg), #eef1f6);
+        color: var(--text);
+        display: grid;
+        place-items: center;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 640px;
+        padding: 24px 16px 40px;
+      }
+
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+        padding: 20px;
+      }
+
+      .title {
+        margin: 0 0 16px;
+        font-size: 22px;
+        letter-spacing: -0.2px;
+      }
+
+      .input-row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .input {
+        width: 100%;
+        height: 44px;
+        padding: 0 14px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        outline: none;
+        background: #fff;
+        color: var(--text);
+        font-size: 15px;
+        transition: box-shadow .15s ease, border-color .15s ease;
+      }
+
+      .input::placeholder {
+        color: var(--muted);
+      }
+
+      .input:focus {
+        border-color: #c7d2fe;
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+      }
+
+      .btn {
+        height: 44px;
+        padding: 0 16px;
+        border: 0;
+        border-radius: 10px;
+        background: var(--primary);
+        color: #fff;
+        font-weight: 600;
+        font-size: 15px;
+        cursor: pointer;
+        transition: transform .03s ease, background-color .15s ease, box-shadow .15s ease;
+        box-shadow: 0 6px 14px rgba(37, 99, 235, 0.25);
+      }
+
+      .btn:active { transform: translateY(1px); }
+      .btn:hover { background: var(--primary-press); }
+
+      .list {
+        list-style: none;
+        padding: 0;
+        margin: 16px 0 0;
+      }
+
+      .item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        margin-top: 10px;
+        background: #fff;
+      }
+
+      .checkbox {
+        width: 18px;
+        height: 18px;
+        accent-color: var(--success);
+        cursor: pointer;
+      }
+
+      .text {
+        flex: 1;
+        font-size: 15px;
+        line-height: 1.4;
+        word-break: break-word;
+      }
+
+      .text.completed {
+        color: var(--muted);
+        text-decoration: line-through;
+      }
+
+      .delete-btn {
+        border: 0;
+        background: #fee2e2;
+        color: var(--danger);
+        padding: 8px 10px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+
+      .delete-btn:hover { background: #fecaca; }
+
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        border: 0;
+        white-space: nowrap;
+      }
+
+      @media (min-width: 480px) {
+        .card { padding: 24px; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="container">
+      <section class="card" aria-labelledby="todo-title">
+        <h1 id="todo-title" class="title">투두리스트</h1>
+        <form id="todo-form" class="input-row" autocomplete="off">
+          <label for="todo-input" class="sr-only">할 일 입력</label>
+          <input id="todo-input" class="input" type="text" placeholder="할 일을 입력하고 Enter 또는 추가를 누르세요" />
+          <button id="add-btn" class="btn" type="submit" aria-label="추가">추가</button>
+        </form>
+
+        <ul id="todo-list" class="list" aria-live="polite"></ul>
+      </section>
+    </main>
+
+    <script>
+      (function () {
+        const form = document.getElementById('todo-form');
+        const input = document.getElementById('todo-input');
+        const list = document.getElementById('todo-list');
+
+        function createItem(text) {
+          const li = document.createElement('li');
+          li.className = 'item';
+
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.className = 'checkbox';
+          checkbox.setAttribute('aria-label', '완료 여부');
+
+          const span = document.createElement('span');
+          span.className = 'text';
+          span.textContent = text;
+
+          const delBtn = document.createElement('button');
+          delBtn.className = 'delete-btn';
+          delBtn.type = 'button';
+          delBtn.textContent = '삭제';
+          delBtn.setAttribute('aria-label', '항목 삭제');
+
+          checkbox.addEventListener('change', () => {
+            span.classList.toggle('completed', checkbox.checked);
+          });
+
+          delBtn.addEventListener('click', () => {
+            li.remove();
+          });
+
+          li.appendChild(checkbox);
+          li.appendChild(span);
+          li.appendChild(delBtn);
+          return li;
+        }
+
+        function addTodo(text) {
+          const trimmed = text.trim();
+          if (!trimmed) return;
+          const item = createItem(trimmed);
+          list.appendChild(item);
+        }
+
+        form.addEventListener('submit', function (e) {
+          e.preventDefault();
+          addTodo(input.value);
+          input.value = '';
+          input.focus();
+        });
+
+        // Optional: Add examples for first-time users (can be removed)
+        const samples = ['예: 운동하기', '예: 우유 사기', '예: 공부 30분'];
+        for (const s of samples) {
+          addTodo(s);
+        }
+      })();
+    </script>
+  </body>
+  </html>
+
+
